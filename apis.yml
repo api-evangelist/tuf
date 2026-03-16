@@ -1,0 +1,52 @@
+aid: tuf
+name: The Update Framework (TUF)
+description: >-
+  TUF (The Update Framework) is a CNCF graduated framework for securing
+  software update systems. It provides a specification for how software
+  repositories should be structured and how clients should verify updates
+  to protect against key compromise, rollback attacks, and mix-and-match
+  attacks. TUF is used by many package managers and update systems including
+  PyPI, Sigstore, and various Linux distributions.
+url: https://theupdateframework.io
+image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+- Software Updates
+- Security
+- Verification
+- Supply Chain
+- Cloud Native
+- Graduated
+created: '2026-03-16'
+modified: '2026-03-16'
+specificationVersion: '0.19'
+type: Index
+apis:
+- aid: tuf:tuf-spec
+  name: TUF Repository Specification
+  description: >-
+    The TUF specification defines the structure of update repositories
+    including the root, targets, snapshot, and timestamp metadata files.
+    Each metadata file has a defined schema with signatures, expiration
+    dates, and delegation rules. Clients follow a defined verification
+    workflow to securely resolve and download updates while protecting
+    against various attack vectors.
+  humanURL: https://theupdateframework.github.io/specification/latest/
+  properties:
+  - type: Documentation
+    url: https://theupdateframework.github.io/specification/latest/
+  tags:
+  - Specification
+  - Repository Metadata
+  - Verification
+common:
+- type: Documentation
+  name: TUF Documentation
+  description: Official TUF documentation and specification.
+  url: https://theupdateframework.io/overview/
+- type: GitHubOrg
+  name: TUF GitHub
+  description: Source code and reference implementations.
+  url: https://github.com/theupdateframework
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
