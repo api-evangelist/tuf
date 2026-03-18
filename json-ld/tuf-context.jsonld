@@ -1,0 +1,147 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "tuf": "https://theupdateframework.io/vocabulary#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "sec": "https://w3id.org/security#",
+
+    "RootMetadata": {
+      "@id": "tuf:RootMetadata",
+      "@context": {
+        "spec_version": "tuf:specVersion",
+        "version": "tuf:metadataVersion",
+        "expires": {
+          "@id": "dcterms:valid",
+          "@type": "xsd:dateTime"
+        },
+        "consistent_snapshot": "tuf:consistentSnapshot",
+        "keys": "tuf:trustedKeys",
+        "roles": "tuf:roleDefinitions"
+      }
+    },
+
+    "TargetsMetadata": {
+      "@id": "tuf:TargetsMetadata",
+      "@context": {
+        "spec_version": "tuf:specVersion",
+        "version": "tuf:metadataVersion",
+        "expires": {
+          "@id": "dcterms:valid",
+          "@type": "xsd:dateTime"
+        },
+        "targets": "tuf:targetFiles",
+        "delegations": "tuf:delegationConfiguration"
+      }
+    },
+
+    "SnapshotMetadata": {
+      "@id": "tuf:SnapshotMetadata",
+      "@context": {
+        "spec_version": "tuf:specVersion",
+        "version": "tuf:metadataVersion",
+        "expires": {
+          "@id": "dcterms:valid",
+          "@type": "xsd:dateTime"
+        },
+        "meta": "tuf:metadataReferences"
+      }
+    },
+
+    "TimestampMetadata": {
+      "@id": "tuf:TimestampMetadata",
+      "@context": {
+        "spec_version": "tuf:specVersion",
+        "version": "tuf:metadataVersion",
+        "expires": {
+          "@id": "dcterms:valid",
+          "@type": "xsd:dateTime"
+        },
+        "meta": "tuf:snapshotReference"
+      }
+    },
+
+    "TargetFile": {
+      "@id": "tuf:TargetFile",
+      "@context": {
+        "length": "tuf:fileLength",
+        "hashes": "tuf:fileHashes",
+        "custom": "tuf:customMetadata"
+      }
+    },
+
+    "MetaFile": {
+      "@id": "tuf:MetaFile",
+      "@context": {
+        "version": "tuf:metadataVersion",
+        "length": "tuf:fileLength",
+        "hashes": "tuf:fileHashes"
+      }
+    },
+
+    "Key": {
+      "@id": "sec:Key",
+      "@context": {
+        "keytype": "tuf:keyType",
+        "scheme": "tuf:signatureScheme",
+        "keyval": "sec:publicKeyJwk"
+      }
+    },
+
+    "Role": {
+      "@id": "tuf:Role",
+      "@context": {
+        "keyids": {
+          "@id": "tuf:authorizedKeyIds",
+          "@container": "@set"
+        },
+        "threshold": "tuf:signatureThreshold"
+      }
+    },
+
+    "DelegatedRole": {
+      "@id": "tuf:DelegatedRole",
+      "@context": {
+        "name": "schema:name",
+        "keyids": {
+          "@id": "tuf:authorizedKeyIds",
+          "@container": "@set"
+        },
+        "threshold": "tuf:signatureThreshold",
+        "terminating": "tuf:terminatingDelegation",
+        "paths": {
+          "@id": "tuf:targetPathPatterns",
+          "@container": "@set"
+        }
+      }
+    },
+
+    "Delegations": {
+      "@id": "tuf:Delegations",
+      "@context": {
+        "keys": "tuf:delegationKeys",
+        "roles": {
+          "@id": "tuf:delegatedRoles",
+          "@container": "@list"
+        }
+      }
+    },
+
+    "Signature": {
+      "@id": "sec:Signature",
+      "@context": {
+        "keyid": "tuf:signingKeyId",
+        "sig": "sec:signatureValue"
+      }
+    },
+
+    "Hashes": {
+      "@id": "tuf:Hashes",
+      "@context": {
+        "sha256": "tuf:sha256Digest",
+        "sha512": "tuf:sha512Digest"
+      }
+    }
+  }
+}

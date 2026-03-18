@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://theupdateframework.io/schemas/timestamp-metadata.json",
+  "title": "TUF Timestamp Metadata",
+  "description": "Schema for The Update Framework (TUF) timestamp metadata document (timestamp.json). The timestamp metadata is the most frequently updated TUF metadata file. It records the current version and hash of the snapshot metadata file, allowing clients to efficiently check whether the repository has been updated without downloading all metadata. The timestamp role uses a short-lived online key to sign this metadata, minimizing key exposure while providing freshness guarantees.",
+  "type": "object",
+  "required": ["signed", "signatures"],
+  "properties": {
+    "signed": {
+      "$ref": "#/$defs/TimestampSigned"
+    },
+    "signatures": {
+      "type": "array",
+      "description": "List of cryptographic signatures over the canonical JSON encoding of the signed field, produced by keys authorized for the timestamp role.",
+      "items": {
+        "$ref": "#/$defs/Signature"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "TimestampSigned": {
+      "type": "object",
+      "description": "The signed portion of timestamp metadata referencing the current snapshot metadata.",
+      "required": ["_type", "spec_version", "version", "expires", "meta"],
+      "properties": {
+        "_type": {
+          "type": "string",
+          "description": "Type identifier for this metadata document.",
+          "const": "timestamp"
+        },
+        "spec_version": {
+          "type": "string",
+          "description": "Version of the TUF specification this metadata conforms to.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "examples": ["1.0.0"]
+        },
+        "version": {
+          "type": "integer",
+          "description": "Monotonically increasing version number for this timestamp metadata. Clients reject versions lower than previously seen.",
+          "minimum": 1
+        },
+        "expires": {
+          "type": "string",
+          "description": "ISO 8601 UTC datetime after which this timestamp metadata is expired. Typically set to a short interval such as one day to ensure freshness.",
+          "format": "date-time"
+        },
+        "meta": {
+          "type": "object",
+          "description": "Map containing a single entry for 'snapshot.json' with its MetaFile descriptor. The timestamp is solely responsible for tracking the current snapshot.",
+          "required": ["snapshot.json"],
+          "properties": {
+            "snapshot.json": {
+              "$ref": "#/$defs/MetaFile"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "MetaFile": {
+      "type": "object",
+      "description": "A reference to the snapshot metadata file, including its version number and cryptographic hashes for integrity verification.",
+      "required": ["version"],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "description": "Version number of the snapshot metadata file. Clients use this to fetch the correct version from the repository.",
+          "minimum": 1
+        },
+        "length": {
+          "type": "integer",
+          "description": "Length of snapshot.json in bytes, used for size validation before downloading.",
+          "minimum": 0
+        },
+        "hashes": {
+          "type": "object",
+          "description": "Cryptographic hashes of snapshot.json used to verify integrity of the downloaded file.",
+          "properties": {
+            "sha256": {
+              "type": "string",
+              "description": "SHA-256 hash of snapshot.json content, hex-encoded.",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "sha512": {
+              "type": "string",
+              "description": "SHA-512 hash of snapshot.json content, hex-encoded.",
+              "pattern": "^[0-9a-f]{128}$"
+            }
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "Hex-encoded hash digest for an additional algorithm."
+          }
+        }
+      }
+    },
+    "Signature": {
+      "type": "object",
+      "description": "A cryptographic signature over the canonical JSON of the signed field.",
+      "required": ["keyid", "sig"],
+      "properties": {
+        "keyid": {
+          "type": "string",
+          "description": "ID of the key that produced this signature.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sig": {
+          "type": "string",
+          "description": "Hex-encoded signature bytes."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "signed": {
+        "_type": "timestamp",
+        "spec_version": "1.0.0",
+        "version": 42,
+        "expires": "2024-06-01T00:00:00Z",
+        "meta": {
+          "snapshot.json": {
+            "version": 7,
+            "length": 4321,
+            "hashes": {
+              "sha256": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+            }
+          }
+        }
+      },
+      "signatures": [
+        {
+          "keyid": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+          "sig": "deadbeef..."
+        }
+      ]
+    }
+  ]
+}

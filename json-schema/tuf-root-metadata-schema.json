@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://theupdateframework.io/schemas/root-metadata.json",
+  "title": "TUF Root Metadata",
+  "description": "Schema for The Update Framework (TUF) root metadata document (root.json). The root metadata is the trust anchor of a TUF repository. It establishes the trusted set of keys and threshold requirements for each top-level role (root, targets, snapshot, timestamp). Clients use the root metadata to verify all other metadata files. Root metadata is signed by the root role keys and may be rotated when keys are compromised or expire.",
+  "type": "object",
+  "required": ["signed", "signatures"],
+  "properties": {
+    "signed": {
+      "$ref": "#/$defs/RootSigned"
+    },
+    "signatures": {
+      "type": "array",
+      "description": "List of cryptographic signatures over the canonical JSON encoding of the signed field. Each signature is produced by one of the keys authorized for the root role.",
+      "items": {
+        "$ref": "#/$defs/Signature"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "RootSigned": {
+      "type": "object",
+      "description": "The signed portion of root metadata containing the trust configuration. This object is serialized to canonical JSON before signing.",
+      "required": ["_type", "spec_version", "version", "expires", "keys", "roles"],
+      "properties": {
+        "_type": {
+          "type": "string",
+          "description": "Type identifier for this metadata document.",
+          "const": "root"
+        },
+        "spec_version": {
+          "type": "string",
+          "description": "Version of the TUF specification this metadata conforms to.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "examples": ["1.0.0", "1.0.31"]
+        },
+        "version": {
+          "type": "integer",
+          "description": "Monotonically increasing version number of this metadata file. Clients use this to detect rollback attacks.",
+          "minimum": 1
+        },
+        "expires": {
+          "type": "string",
+          "description": "ISO 8601 UTC datetime after which this metadata is considered expired and must be refreshed.",
+          "format": "date-time",
+          "examples": ["2025-01-01T00:00:00Z"]
+        },
+        "consistent_snapshot": {
+          "type": "boolean",
+          "description": "If true, the repository uses consistent snapshots where each metadata and target file is prefixed with its version number or hash. Recommended for all production repositories.",
+          "default": true
+        },
+        "keys": {
+          "type": "object",
+          "description": "Map of key ID to public key object for all keys referenced by this root metadata. Key IDs are hex-encoded SHA-256 hashes of the canonical JSON encoding of the key object.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Key"
+          }
+        },
+        "roles": {
+          "type": "object",
+          "description": "Map of role name to role definition specifying which keys and threshold of signatures are required for each top-level TUF role.",
+          "required": ["root", "targets", "snapshot", "timestamp"],
+          "properties": {
+            "root": {
+              "$ref": "#/$defs/Role"
+            },
+            "targets": {
+              "$ref": "#/$defs/Role"
+            },
+            "snapshot": {
+              "$ref": "#/$defs/Role"
+            },
+            "timestamp": {
+              "$ref": "#/$defs/Role"
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/Role"
+          }
+        }
+      }
+    },
+    "Key": {
+      "type": "object",
+      "description": "A cryptographic public key used to verify TUF metadata signatures.",
+      "required": ["keytype", "scheme", "keyval"],
+      "properties": {
+        "keytype": {
+          "type": "string",
+          "description": "Cryptographic key type identifier.",
+          "enum": ["ed25519", "rsa", "ecdsa", "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384"]
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Signature scheme used with this key.",
+          "enum": ["ed25519", "rsassa-pss-sha224", "rsassa-pss-sha256", "rsassa-pss-sha384", "rsassa-pss-sha512", "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384"]
+        },
+        "keyval": {
+          "type": "object",
+          "description": "The actual key material. For asymmetric keys this contains the public key value.",
+          "required": ["public"],
+          "properties": {
+            "public": {
+              "type": "string",
+              "description": "The public key value, encoded according to the key type (hex for ed25519, PEM for RSA/ECDSA)."
+            }
+          }
+        },
+        "keyid_hash_algorithms": {
+          "type": "array",
+          "description": "Hash algorithms used when computing the key ID. Deprecated in TUF spec 1.0; key ID is the SHA-256 of the canonical key JSON.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "description": "A TUF role definition specifying which keys may sign this role's metadata and how many signatures are required.",
+      "required": ["keyids", "threshold"],
+      "properties": {
+        "keyids": {
+          "type": "array",
+          "description": "List of key IDs authorized to sign this role's metadata. Each value corresponds to a key in the root metadata's keys map.",
+          "items": {
+            "type": "string",
+            "description": "Hex-encoded key ID.",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "minItems": 1
+        },
+        "threshold": {
+          "type": "integer",
+          "description": "Minimum number of valid signatures from the listed keyids required for the metadata to be trusted.",
+          "minimum": 1
+        }
+      }
+    },
+    "Signature": {
+      "type": "object",
+      "description": "A cryptographic signature over the canonical JSON of the signed field.",
+      "required": ["keyid", "sig"],
+      "properties": {
+        "keyid": {
+          "type": "string",
+          "description": "ID of the key that produced this signature.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sig": {
+          "type": "string",
+          "description": "Hex-encoded signature bytes produced by signing the canonical JSON of the signed field with the private key corresponding to keyid."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "signed": {
+        "_type": "root",
+        "spec_version": "1.0.0",
+        "version": 1,
+        "expires": "2025-01-01T00:00:00Z",
+        "consistent_snapshot": true,
+        "keys": {
+          "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890": {
+            "keytype": "ed25519",
+            "scheme": "ed25519",
+            "keyval": {
+              "public": "abc123..."
+            }
+          }
+        },
+        "roles": {
+          "root": {
+            "keyids": ["abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"],
+            "threshold": 1
+          },
+          "targets": {
+            "keyids": ["abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"],
+            "threshold": 1
+          },
+          "snapshot": {
+            "keyids": ["abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"],
+            "threshold": 1
+          },
+          "timestamp": {
+            "keyids": ["abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"],
+            "threshold": 1
+          }
+        }
+      },
+      "signatures": [
+        {
+          "keyid": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+          "sig": "deadbeef..."
+        }
+      ]
+    }
+  ]
+}

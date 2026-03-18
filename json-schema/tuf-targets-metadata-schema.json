@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://theupdateframework.io/schemas/targets-metadata.json",
+  "title": "TUF Targets Metadata",
+  "description": "Schema for The Update Framework (TUF) targets metadata document (targets.json). The targets metadata lists the files available for download from the repository along with their cryptographic hashes and lengths. It also defines delegations to sub-roles that can sign additional subsets of targets. Clients verify each downloaded file against the hash and length recorded in the targets metadata before trusting it.",
+  "type": "object",
+  "required": ["signed", "signatures"],
+  "properties": {
+    "signed": {
+      "$ref": "#/$defs/TargetsSigned"
+    },
+    "signatures": {
+      "type": "array",
+      "description": "List of cryptographic signatures over the canonical JSON encoding of the signed field, produced by keys authorized for the targets role.",
+      "items": {
+        "$ref": "#/$defs/Signature"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "TargetsSigned": {
+      "type": "object",
+      "description": "The signed portion of targets metadata listing available targets and optional delegations.",
+      "required": ["_type", "spec_version", "version", "expires", "targets"],
+      "properties": {
+        "_type": {
+          "type": "string",
+          "description": "Type identifier for this metadata document.",
+          "const": "targets"
+        },
+        "spec_version": {
+          "type": "string",
+          "description": "Version of the TUF specification this metadata conforms to.",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "examples": ["1.0.0"]
+        },
+        "version": {
+          "type": "integer",
+          "description": "Monotonically increasing version number. Clients reject metadata with a version lower than the previously seen version to prevent rollback attacks.",
+          "minimum": 1
+        },
+        "expires": {
+          "type": "string",
+          "description": "ISO 8601 UTC datetime after which this targets metadata is expired and must be refreshed.",
+          "format": "date-time"
+        },
+        "targets": {
+          "type": "object",
+          "description": "Map of target file path to target file metadata. Keys are file paths relative to the repository targets directory. Each value describes the file's length and cryptographic hashes.",
+          "additionalProperties": {
+            "$ref": "#/$defs/TargetFile"
+          }
+        },
+        "delegations": {
+          "$ref": "#/$defs/Delegations"
+        }
+      }
+    },
+    "TargetFile": {
+      "type": "object",
+      "description": "Metadata describing a single target file available for download, including its length and cryptographic hashes used to verify integrity.",
+      "required": ["length", "hashes"],
+      "properties": {
+        "length": {
+          "type": "integer",
+          "description": "Length of the target file in bytes. Clients verify the downloaded file's size matches this value.",
+          "minimum": 0
+        },
+        "hashes": {
+          "$ref": "#/$defs/Hashes"
+        },
+        "custom": {
+          "type": "object",
+          "description": "Optional application-specific metadata about this target file, such as version strings, release notes, or platform information.",
+          "additionalProperties": true
+        },
+        "unrecognized_fields": {
+          "type": "object",
+          "description": "Unrecognized fields are preserved for forward compatibility.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "Hashes": {
+      "type": "object",
+      "description": "Map of hash algorithm name to hex-encoded hash digest of the file content. Used to verify file integrity.",
+      "minProperties": 1,
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "description": "SHA-256 hash of the file content, hex-encoded.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sha512": {
+          "type": "string",
+          "description": "SHA-512 hash of the file content, hex-encoded.",
+          "pattern": "^[0-9a-f]{128}$"
+        },
+        "sha3_256": {
+          "type": "string",
+          "description": "SHA3-256 hash of the file content, hex-encoded.",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "description": "Hex-encoded hash digest for an additional algorithm."
+      }
+    },
+    "Delegations": {
+      "type": "object",
+      "description": "Delegation configuration allowing the targets role to delegate trust for subsets of targets to named delegated roles. This enables multi-owner repositories and fine-grained trust distribution.",
+      "required": ["keys", "roles"],
+      "properties": {
+        "keys": {
+          "type": "object",
+          "description": "Map of key ID to public key for all keys referenced by delegated roles.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Key"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "Ordered list of delegated role definitions. Roles are evaluated in order; the first matching role wins.",
+          "items": {
+            "$ref": "#/$defs/DelegatedRole"
+          }
+        }
+      }
+    },
+    "DelegatedRole": {
+      "type": "object",
+      "description": "A delegated role definition that grants a set of keys signing authority over a specified subset of target paths.",
+      "required": ["name", "keyids", "threshold", "terminating", "paths"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of this delegated role. Corresponds to the filename of the delegated role's metadata (e.g., 'unclaimed' maps to 'unclaimed.json').",
+          "minLength": 1
+        },
+        "keyids": {
+          "type": "array",
+          "description": "List of key IDs authorized to sign this delegated role's metadata.",
+          "items": {
+            "type": "string",
+            "description": "Hex-encoded key ID.",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "minItems": 1
+        },
+        "threshold": {
+          "type": "integer",
+          "description": "Minimum number of valid signatures from keyids required to trust this role's metadata.",
+          "minimum": 1
+        },
+        "terminating": {
+          "type": "boolean",
+          "description": "If true, the delegation search stops at this role even if the target is not found here. If false, the search continues to subsequent delegated roles."
+        },
+        "paths": {
+          "type": "array",
+          "description": "List of target path patterns this role is delegated to sign. Supports glob-style wildcards. A target must match at least one pattern to fall under this delegation.",
+          "items": {
+            "type": "string",
+            "description": "A target path pattern, optionally including '*' wildcards.",
+            "examples": ["*.txt", "packages/*.tar.gz", "project/releases/*"]
+          }
+        },
+        "path_hash_prefixes": {
+          "type": "array",
+          "description": "Alternative to paths. List of hash prefixes; a target is delegated to this role if its path hash starts with one of these prefixes. Used for hash-bucketed delegation.",
+          "items": {
+            "type": "string",
+            "description": "Hex-encoded hash prefix."
+          }
+        }
+      }
+    },
+    "Key": {
+      "type": "object",
+      "description": "A cryptographic public key used to verify TUF metadata signatures.",
+      "required": ["keytype", "scheme", "keyval"],
+      "properties": {
+        "keytype": {
+          "type": "string",
+          "description": "Cryptographic key type identifier.",
+          "enum": ["ed25519", "rsa", "ecdsa", "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384"]
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Signature scheme used with this key.",
+          "enum": ["ed25519", "rsassa-pss-sha224", "rsassa-pss-sha256", "rsassa-pss-sha384", "rsassa-pss-sha512", "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384"]
+        },
+        "keyval": {
+          "type": "object",
+          "description": "The public key material.",
+          "required": ["public"],
+          "properties": {
+            "public": {
+              "type": "string",
+              "description": "The public key value encoded per key type."
+            }
+          }
+        }
+      }
+    },
+    "Signature": {
+      "type": "object",
+      "description": "A cryptographic signature over the canonical JSON of the signed field.",
+      "required": ["keyid", "sig"],
+      "properties": {
+        "keyid": {
+          "type": "string",
+          "description": "ID of the key that produced this signature.",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sig": {
+          "type": "string",
+          "description": "Hex-encoded signature bytes."
+        }
+      }
+    }
+  }
+}

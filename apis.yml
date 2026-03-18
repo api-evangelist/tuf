@@ -17,7 +17,7 @@ tags:
 - Cloud Native
 - Graduated
 created: '2026-03-16'
-modified: '2026-03-16'
+modified: '2026-03-18'
 specificationVersion: '0.19'
 type: Index
 apis:
@@ -34,19 +34,81 @@ apis:
   properties:
   - type: Documentation
     url: https://theupdateframework.github.io/specification/latest/
+  - type: GitHubRepository
+    url: https://github.com/theupdateframework/specification
+  - type: JSONSchema
+    url: json-schema/tuf-root-metadata-schema.json
+  - type: JSONSchema
+    url: json-schema/tuf-targets-metadata-schema.json
+  - type: JSONSchema
+    url: json-schema/tuf-snapshot-metadata-schema.json
+  - type: JSONSchema
+    url: json-schema/tuf-timestamp-metadata-schema.json
   tags:
   - Specification
   - Repository Metadata
   - Verification
+- aid: tuf:python-tuf
+  name: TUF Python Reference Implementation
+  description: >-
+    The official Python reference implementation of The Update Framework (TUF)
+    specification. Provides a metadata API for reading and writing TUF metadata
+    files, an ngclient API implementing the TUF client update workflow, and a
+    repository library for building TUF-compliant software repositories.
+  humanURL: https://theupdateframework.readthedocs.io/en/stable/
+  properties:
+  - type: Documentation
+    url: https://theupdateframework.readthedocs.io/en/stable/
+  - type: GitHubRepository
+    url: https://github.com/theupdateframework/python-tuf
+  tags:
+  - Security
+  - Software Updates
+  - Python
+  - Supply Chain
+  - Client Library
+- aid: tuf:go-tuf
+  name: TUF Go Implementation
+  description: >-
+    A Go implementation of The Update Framework (TUF), heavily influenced by
+    python-tuf's design. Provides metadata, TrustedMetadata, and Updater
+    packages implementing the TUF client workflow and specification-compliant
+    metadata handling, as well as multi-repository support via TAP 4.
+  humanURL: https://github.com/theupdateframework/go-tuf
+  properties:
+  - type: Documentation
+    url: https://github.com/theupdateframework/go-tuf
+  - type: GitHubRepository
+    url: https://github.com/theupdateframework/go-tuf
+  tags:
+  - Security
+  - Software Updates
+  - Go
+  - Supply Chain
+  - Client Library
 common:
+- type: Website
+  url: https://theupdateframework.io/
 - type: Documentation
-  name: TUF Documentation
-  description: Official TUF documentation and specification.
-  url: https://theupdateframework.io/overview/
-- type: GitHubOrg
-  name: TUF GitHub
-  description: Source code and reference implementations.
+  url: https://theupdateframework.io/docs/
+- type: Getting Started
+  url: https://theupdateframework.io/docs/getting-started/
+- type: GitHub Organization
   url: https://github.com/theupdateframework
+- type: GitHubRepository
+  url: https://github.com/theupdateframework/python-tuf
+- type: Blog
+  url: https://theupdateframework.io/resources/news/
+- type: JSON-LD
+  url: json-ld/tuf-context.jsonld
+- type: JSONSchema
+  url: json-schema/tuf-root-metadata-schema.json
+- type: JSONSchema
+  url: json-schema/tuf-targets-metadata-schema.json
+- type: JSONSchema
+  url: json-schema/tuf-snapshot-metadata-schema.json
+- type: JSONSchema
+  url: json-schema/tuf-timestamp-metadata-schema.json
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
