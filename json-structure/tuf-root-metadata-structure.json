@@ -1,0 +1,46 @@
+{
+  "title": "TUF Root Metadata Structure",
+  "description": "JSON structure for The Update Framework root.json metadata file (trust anchor)",
+  "structure": {
+    "signed": {
+      "_type": "string (const: 'root')",
+      "spec_version": "string (semver, e.g. '1.0.31')",
+      "version": "integer (monotonically increasing)",
+      "expires": "string (ISO 8601 date-time UTC)",
+      "consistent_snapshot": "boolean",
+      "keys": {
+        "<key_id>": {
+          "keytype": "string (ed25519, rsa, ecdsa)",
+          "scheme": "string (ed25519, rsassa-pss-sha256, ecdsa-sha2-nistp256)",
+          "keyval": {
+            "public": "string (hex for ed25519, PEM for RSA/ECDSA)"
+          }
+        }
+      },
+      "roles": {
+        "root": {
+          "keyids": ["string (64-char hex key ID)"],
+          "threshold": "integer (minimum valid signatures required)"
+        },
+        "targets": {
+          "keyids": ["string"],
+          "threshold": "integer"
+        },
+        "snapshot": {
+          "keyids": ["string"],
+          "threshold": "integer"
+        },
+        "timestamp": {
+          "keyids": ["string"],
+          "threshold": "integer"
+        }
+      }
+    },
+    "signatures": [
+      {
+        "keyid": "string (64-char hex)",
+        "sig": "string (hex-encoded signature)"
+      }
+    ]
+  }
+}

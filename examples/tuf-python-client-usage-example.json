@@ -1,0 +1,6 @@
+{
+  "description": "Example showing how to use python-tuf ngclient to perform a TUF update",
+  "language": "python",
+  "code": "from tuf.ngclient import Updater\n\n# Initialize the TUF updater with repository URL and local metadata path\nupdater = Updater(\n    metadata_dir='/path/to/local/tuf/metadata',\n    metadata_base_url='https://my-tuf-repository.example.com/metadata/',\n    target_base_url='https://my-tuf-repository.example.com/targets/',\n    target_dir='/path/to/download/directory'\n)\n\n# Refresh all metadata (root, targets, snapshot, timestamp)\nupdater.refresh()\n\n# Find a specific target file\ntarget_info = updater.get_targetinfo('myapp-1.2.3-linux-amd64.tar.gz')\n\nif target_info is not None:\n    # Download and verify the target\n    path = updater.find_cached_target(target_info)\n    if path is None:\n        path = updater.download_target(target_info)\n    print(f'Target downloaded to: {path}')\nelse:\n    print('Target not found in repository')",
+  "notes": "The TUF ngclient automatically verifies all metadata signatures, checks expiration, and validates file hashes before completing the download."
+}

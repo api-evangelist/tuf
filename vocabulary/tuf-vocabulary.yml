@@ -1,0 +1,216 @@
+vocabulary:
+  name: The Update Framework (TUF) Vocabulary
+  description: >-
+    Domain vocabulary for The Update Framework (TUF) CNCF graduated specification.
+    Covers the core concepts of secure software update systems including metadata roles,
+    signing, delegation, and attack protections.
+  version: "1.0"
+  created: "2026-05-03"
+  modified: "2026-05-03"
+  provider: The Update Framework (TUF)
+
+terms:
+  - term: Consistent Snapshot
+    definition: >-
+      A repository mode where each metadata and target file is prefixed with its version
+      number or hash. Consistent snapshots prevent attacks where an adversary serves
+      different file versions to different clients simultaneously. Recommended for all
+      production TUF repositories.
+    category: Repository Security
+    tags:
+      - Repository
+      - Security
+
+  - term: Delegation
+    definition: >-
+      A TUF mechanism where the targets role grants signing authority over a subset of
+      targets to another role. Delegations allow large repositories to distribute signing
+      responsibilities across multiple teams with different trust levels and key materials.
+    category: Trust Management
+    tags:
+      - Signing
+      - Trust
+
+  - term: Expiration
+    definition: >-
+      All TUF metadata files include an expiration timestamp. Clients reject metadata
+      that has expired, protecting against freeze attacks where an adversary serves
+      outdated but validly-signed metadata indefinitely.
+    category: Security Property
+    tags:
+      - Anti-Freeze Attack
+      - Security
+
+  - term: Freeze Attack
+    definition: >-
+      An attack where an adversary serves outdated but validly-signed metadata and targets
+      to clients indefinitely, preventing them from receiving security updates. TUF prevents
+      freeze attacks through mandatory metadata expiration.
+    category: Attack Vector
+    tags:
+      - Attack
+      - Security
+
+  - term: Key Compromise Attack
+    definition: >-
+      An attack where an adversary gains control of a repository signing key. TUF mitigates
+      key compromise through role separation (each role has distinct keys), threshold signing
+      (multiple keys required), and online/offline key separation (root keys stored offline).
+    category: Attack Vector
+    tags:
+      - Attack
+      - Security
+      - Signing
+
+  - term: Key ID
+    definition: >-
+      The 64-character hexadecimal identifier for a cryptographic key in TUF. Key IDs are
+      computed as the SHA-256 hash of the canonical JSON encoding of the key object,
+      ensuring each key has a stable, deterministic identifier.
+    category: Technical Concept
+    tags:
+      - Cryptography
+      - Keys
+
+  - term: Key Threshold
+    definition: >-
+      The minimum number of valid signatures from a role's authorized key set required
+      for its metadata to be trusted. Multi-key thresholds (e.g., threshold: 3 of 5 keys)
+      provide protection against partial key compromise.
+    category: Trust Management
+    tags:
+      - Signing
+      - Trust
+
+  - term: Metadata
+    definition: >-
+      Signed files that TUF clients download to verify the authenticity of target files.
+      The four top-level metadata files are root.json, targets.json, snapshot.json, and
+      timestamp.json. Each is signed by its corresponding role keys.
+    category: Core Concept
+    tags:
+      - Files
+      - Signing
+
+  - term: Mix-and-Match Attack
+    definition: >-
+      An attack where an adversary combines valid metadata and target files from different
+      repository states to deceive clients into installing inconsistent or malicious combinations.
+      TUF prevents this through the snapshot metadata which captures the consistent state
+      of all metadata files at a point in time.
+    category: Attack Vector
+    tags:
+      - Attack
+      - Security
+
+  - term: Repository
+    definition: >-
+      A TUF-compliant software distribution system consisting of a metadata store and a
+      target file store. Clients interact with the repository to verify and download software
+      updates according to the TUF specification.
+    category: Core Concept
+    tags:
+      - Infrastructure
+      - Software Distribution
+
+  - term: Role
+    definition: >-
+      A named signing authority in a TUF repository. The four top-level roles are root
+      (trust anchor), targets (file inventory), snapshot (consistency), and timestamp
+      (freshness). Additional delegated roles can be defined for sub-namespaces.
+    category: Core Concept
+    tags:
+      - Signing
+      - Trust
+
+  - term: Rollback Attack
+    definition: >-
+      An attack where an adversary serves an older version of a file or metadata to
+      prevent clients from receiving updates. TUF prevents rollback attacks through
+      monotonically increasing version numbers that clients verify with each refresh.
+    category: Attack Vector
+    tags:
+      - Attack
+      - Security
+
+  - term: Root Metadata
+    definition: >-
+      The trust anchor of a TUF repository (root.json). The root metadata establishes
+      the set of trusted public keys for each top-level role and their signing thresholds.
+      Root metadata is signed by root role keys, which should be stored offline.
+    category: Metadata Type
+    tags:
+      - Security
+      - Trust Anchor
+
+  - term: Signature
+    definition: >-
+      A cryptographic signature over the canonical JSON encoding of a metadata file's
+      signed field. Multiple signatures may appear in a single metadata file, with the
+      threshold determining how many valid signatures are required for trust.
+    category: Cryptography
+    tags:
+      - Cryptography
+      - Signing
+
+  - term: Snapshot Metadata
+    definition: >-
+      The TUF snapshot.json file that records the current version of every other metadata
+      file in the repository (except timestamp.json). Snapshot metadata prevents mix-and-match
+      attacks by committing to a consistent repository state.
+    category: Metadata Type
+    tags:
+      - Consistency
+      - Repository
+
+  - term: Target File
+    definition: >-
+      The actual software artifact (binary, package, configuration file) that TUF secures.
+      Targets are verified by comparing their hashes and file size against signed targets
+      metadata before installation.
+    category: Core Concept
+    tags:
+      - Files
+      - Software
+
+  - term: Targets Metadata
+    definition: >-
+      The TUF targets.json file that inventories the target files available in the repository,
+      including their sizes and cryptographic hashes. Targets metadata is signed by the
+      targets role and may include delegations to sub-roles.
+    category: Metadata Type
+    tags:
+      - Files
+      - Inventory
+
+  - term: Timestamp Metadata
+    definition: >-
+      The TUF timestamp.json file that provides a signed, frequently-refreshed reference
+      to the current snapshot metadata. The timestamp is the most frequently updated
+      metadata and is used to detect freeze attacks. It is typically signed with an online key.
+    category: Metadata Type
+    tags:
+      - Freshness
+      - Security
+
+  - term: TUF Client
+    definition: >-
+      Software that implements the TUF client update workflow to securely download and
+      verify software from a TUF repository. Reference client implementations exist in
+      Python (python-tuf), Go (go-tuf), JavaScript (tuf-js), and Rust (rust-tuf).
+    category: Implementation
+    tags:
+      - Client
+      - Software
+
+  - term: Verification Workflow
+    definition: >-
+      The TUF client protocol for securely refreshing metadata and verifying targets.
+      The workflow begins with the trusted root metadata, updates each role in sequence
+      (timestamp, snapshot, targets), verifies version numbers and expiration, then
+      downloads and verifies target files by hash.
+    category: Protocol
+    tags:
+      - Client
+      - Protocol
+      - Security

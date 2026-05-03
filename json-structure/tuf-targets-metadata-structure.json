@@ -1,0 +1,48 @@
+{
+  "title": "TUF Targets Metadata Structure",
+  "description": "JSON structure for The Update Framework targets.json metadata file",
+  "structure": {
+    "signed": {
+      "_type": "string (const: 'targets')",
+      "spec_version": "string (semver)",
+      "version": "integer",
+      "expires": "string (ISO 8601 date-time UTC)",
+      "targets": {
+        "<target_path>": {
+          "length": "integer (file size in bytes)",
+          "hashes": {
+            "sha256": "string (hex digest)",
+            "sha512": "string (hex digest)"
+          },
+          "custom": "object (optional application-specific metadata)"
+        }
+      },
+      "delegations": {
+        "keys": {
+          "<key_id>": {
+            "keytype": "string",
+            "scheme": "string",
+            "keyval": {
+              "public": "string"
+            }
+          }
+        },
+        "roles": [
+          {
+            "name": "string (delegated role name)",
+            "keyids": ["string"],
+            "threshold": "integer",
+            "terminating": "boolean",
+            "paths": ["string (target path patterns)"]
+          }
+        ]
+      }
+    },
+    "signatures": [
+      {
+        "keyid": "string",
+        "sig": "string"
+      }
+    ]
+  }
+}
