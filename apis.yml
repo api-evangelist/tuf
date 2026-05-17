@@ -163,7 +163,7 @@ common:
     url: https://theupdateframework.io/docs/
   - type: GettingStarted
     url: https://theupdateframework.io/docs/getting-started/
-  - type: GitHub Organization
+  - type: GitHubOrganization
     url: https://github.com/theupdateframework
   - type: GitHubRepository
     url: https://github.com/theupdateframework/python-tuf
@@ -175,7 +175,7 @@ common:
     url: https://www.cncf.io/projects/the-update-framework-tuf/
   - type: Community
     url: https://github.com/theupdateframework/community
-  - type: JSON-LD
+  - type: JSONLD
     url: json-ld/tuf-context.jsonld
   - type: JSONSchema
     url: json-schema/tuf-root-metadata-schema.json
