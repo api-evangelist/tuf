@@ -2,6 +2,13 @@
   "repo": "tuf",
   "feeds": [
     {
+      "source": "https://theupdateframework.io/resources/news/",
+      "feed_url": "https://theupdateframework.io/resources/news/",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    },
+    {
       "source": "https://theupdateframework.github.io/specification/latest/",
       "feed_url": "https://theupdateframework.github.io/specification/latest/",
       "title": "",
@@ -9,6 +16,6 @@
       "method": "none"
     }
   ],
-  "fetched": "2026-06-01T23:35:02Z",
+  "fetched": "2026-06-14T20:42:17Z",
   "post_count": 0
 }
