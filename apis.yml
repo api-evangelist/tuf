@@ -157,6 +157,8 @@ apis:
       - Security
       - Testing
 common:
+  - type: DomainSecurity
+    url: security/tuf-domain-security.yml
   - type: Website
     url: https://theupdateframework.io/
   - type: Documentation
