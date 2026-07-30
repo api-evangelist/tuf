@@ -10,7 +10,19 @@ description: >-
   a four-role metadata structure (root, targets, snapshot, timestamp) with
   threshold signing and delegation capabilities for scalable trust management.
 url: https://theupdateframework.io
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: freemium
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Freemium
+  confidence: medium
+  source:
+  - plans
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/tuf.png
 tags:
   - CNCF
   - Cloud Native
