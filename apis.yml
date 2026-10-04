@@ -12,14 +12,21 @@ description: >-
 url: https://theupdateframework.io
 deliveryModel:
   model: unknown
+  license_evidence:
+    not_product:
+    - theupdateframework/go-tuf
+    - theupdateframework/python-tuf
+    - theupdateframework/rust-tuf
+    - theupdateframework/specification
+    - theupdateframework/tuf-conformance
   open_source: unknown
   commercial: false
   callable_host: false
   label: Delivery model not determined — needs a product licence on record
   confidence: low
   source:
-  - repository-unlicensed
-  generated: '2026-08-28'
+  - repository-not-product
+  generated: '2026-09-25'
   method: derived
 accessModel:
   pricing: freemium
